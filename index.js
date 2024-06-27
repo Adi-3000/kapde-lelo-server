@@ -27,9 +27,7 @@ app.use(cors(
 ));
 
 //database connetion
-mongoose.connect(dbURL
-
-).then(() => {
+mongoose.connect(dbURL).then(() => {
 
     console.log("App connected to db");
     app.listen(PORT, () => {
@@ -58,9 +56,12 @@ app.post('/products', async (req, res) => {
     }
 });
 
-app.get('/items', async (request, response) => {
+app.get('/items/:page', async (request, response) => {
+    const page= parseInt(request.params.page,10) || 0;
+    let skip;
+    page*10>=20?skip=0:skip=page*10
     try {
-        const item = await items.find({});
+        const item = await items.find().skip(skip).limit(10);
 
         return response.status(200).json(item);
     } catch (err) {
@@ -164,6 +165,7 @@ app.post('/user', async (req, res) => {
         res.status(201).send(newUser);
     } catch (err) {
         console.error('Error saving user:', err);
+       
         res.status(400).send({ error: err.message });
     }
 });
